@@ -1,0 +1,38 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Express 2012 for Windows Desktop
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Snake", "Snake\Snake.vcxproj", "{B2B24346-56E8-47A3-BF10-476B19C8A3B9}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Dx86|Win32 = Dx86|Win32
+		Dx86|x64 = Dx86|x64
+		Rx64|Win32 = Rx64|Win32
+		Rx64|x64 = Rx64|x64
+		Rx86|Win32 = Rx86|Win32
+		Rx86|x64 = Rx86|x64
+		Rx86xp|Win32 = Rx86xp|Win32
+		Rx86xp|x64 = Rx86xp|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B2B24346-56E8-47A3-BF10-476B19C8A3B9}.Dx86|Win32.ActiveCfg = Dx86|Win32
+		{B2B24346-56E8-47A3-BF10-476B19C8A3B9}.Dx86|Win32.Build.0 = Dx86|Win32
+		{B2B24346-56E8-47A3-BF10-476B19C8A3B9}.Dx86|x64.ActiveCfg = Dx86|x64
+		{B2B24346-56E8-47A3-BF10-476B19C8A3B9}.Dx86|x64.Build.0 = Dx86|x64
+		{B2B24346-56E8-47A3-BF10-476B19C8A3B9}.Rx64|Win32.ActiveCfg = Rx64|Win32
+		{B2B24346-56E8-47A3-BF10-476B19C8A3B9}.Rx64|Win32.Build.0 = Rx64|Win32
+		{B2B24346-56E8-47A3-BF10-476B19C8A3B9}.Rx64|x64.ActiveCfg = Rx64|x64
+		{B2B24346-56E8-47A3-BF10-476B19C8A3B9}.Rx64|x64.Build.0 = Rx64|x64
+		{B2B24346-56E8-47A3-BF10-476B19C8A3B9}.Rx86|Win32.ActiveCfg = Rx86|Win32
+		{B2B24346-56E8-47A3-BF10-476B19C8A3B9}.Rx86|Win32.Build.0 = Rx86|Win32
+		{B2B24346-56E8-47A3-BF10-476B19C8A3B9}.Rx86|x64.ActiveCfg = Rx86|x64
+		{B2B24346-56E8-47A3-BF10-476B19C8A3B9}.Rx86|x64.Build.0 = Rx86|x64
+		{B2B24346-56E8-47A3-BF10-476B19C8A3B9}.Rx86xp|Win32.ActiveCfg = Rx86xp|Win32
+		{B2B24346-56E8-47A3-BF10-476B19C8A3B9}.Rx86xp|Win32.Build.0 = Rx86xp|Win32
+		{B2B24346-56E8-47A3-BF10-476B19C8A3B9}.Rx86xp|x64.ActiveCfg = Rx86xp|x64
+		{B2B24346-56E8-47A3-BF10-476B19C8A3B9}.Rx86xp|x64.Build.0 = Rx86xp|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
