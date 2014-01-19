@@ -5,6 +5,7 @@
  */
 
 #include <list>
+#include <map>
 #include <ctime>
 #include <fstream>
 #include <iostream>
@@ -27,6 +28,7 @@ typedef struct {
 void game_pause(int sc);
 void game_over(int sc);
 void game_reset(void);
+void read_config(string fname);
 int random(int min, int max);
 pos roll_fruit(list<pos> l);
 bool collision(list<pos> l, pos h);
@@ -37,7 +39,7 @@ Sprite head, tail, fruit, background;
 Font score_f;
 Text score_t;
 Event ev;
-Clock timer;
+Clock timer, score_timer;
 Music bgmusic;
 
 list<pos> snake;
@@ -45,25 +47,19 @@ int snake_dir = DIR_RIGHT;
 int snake_cur_dir = DIR_RIGHT;
 pos head_pos = {10, 5};
 pos fruit_pos = {0, 0};
+
 int score = 0;
-string score_s;
-ifstream config;
-int level_ms = 150;
+int level = 1;
+int prev_level = 1;
+map<string, float> level_cfg;
 
 int main(void)
 {
-#ifdef _DEBUG
-	cout << "Game Started" << endl;
-#endif
-
 	srand(time(NULL));
 
-	window.setFramerateLimit(60);
+	read_config("../config.ini");
 
-	config.open("../config.ini");
-	if(config.good())
-		config >> level_ms;
-	config.close();
+	window.setFramerateLimit(60);
 
 	head_pos.x = 9;
 	snake.push_back(head_pos);
@@ -91,8 +87,8 @@ int main(void)
 	bgmusic.play();
 
 	fruit_pos = roll_fruit(snake);
-	score_t.setString("Score: 0");
-
+	score_t.setString("Score: " + to_string(score) + "\nLevel: " + to_string(level));
+	
 	while(window.isOpen())
 	{
 		while(window.pollEvent(ev))
@@ -123,16 +119,13 @@ int main(void)
 							break;
 						case Keyboard::Escape:
 							game_pause(score);
-#ifdef _DEBUG
-							cout << "Game Resumed" << endl;
-#endif
 							break;
 					}
 					break;
 			}
 		}
 
-		if(timer.getElapsedTime().asMilliseconds() >= level_ms)
+		if(timer.getElapsedTime().asMilliseconds() >= level_cfg.at("ms_tim"))
 		{
 			timer.restart();
 			snake.pop_back();
@@ -140,40 +133,43 @@ int main(void)
 			{
 				case DIR_UP:
 					--head_pos.y;
-					if(head_pos.y < 0)
-						head_pos.y = 39;
 					break;
 				case DIR_DOWN:
 					++head_pos.y;
-					if(head_pos.y > 39)
-						head_pos.y = 0;
 					break;
 				case DIR_LEFT:
 					--head_pos.x;
-					if(head_pos.x < 0)
-						head_pos.x = 49;
 					break;
 				case DIR_RIGHT:
 					++head_pos.x;
-					if(head_pos.x > 49)
-						head_pos.x = 0;
 					break;
 			}
 			snake_cur_dir = snake_dir;
 			if(collision(snake, head_pos))
 				game_over(score);
-			snake.push_front(head_pos);
+			else
+				snake.push_front(head_pos);
 		}
 
 		if(head_pos.x == fruit_pos.x && head_pos.y == fruit_pos.y)
 		{
-#ifdef _DEBUG
-			cout << "Fruit Consumed at: X: " << head_pos.x << " Y: " << head_pos.y << endl;
-#endif
+			score += (int)(level_cfg.at("sc_div") / score_timer.getElapsedTime().asSeconds());
+			score_timer.restart();
+
+			level = score / level_cfg.at("lv_edge") + 1;
+			if(level != prev_level)
+			{
+				if(level_cfg.at("ms_tim") > level_cfg.at("ms_min"))
+					level_cfg.at("ms_tim") -= level_cfg.at("ms_dec");
+				if(level_cfg.at("sc_div") > level_cfg.at("sc_min"))
+					level_cfg.at("sc_div") -= level_cfg.at("sc_dec");
+				prev_level = level;
+			}
+
 			fruit_pos = roll_fruit(snake);
-			score_s = "Score: " + to_string(++score);
-			score_t.setString(score_s);
 			snake.push_back(head_pos);
+
+			score_t.setString("Score: " + to_string(score) + "\nLevel: " + to_string(level));
 		}
 
 		window.draw(background);
@@ -190,7 +186,7 @@ int main(void)
 		fruit.setPosition(fruit_pos.x * 15, fruit_pos.y * 15);
 		window.draw(fruit);
 
-		score_t.setPosition(10, 10);
+		score_t.setPosition(15, 10);
 		window.draw(score_t);
 
 		window.display();
@@ -216,10 +212,6 @@ void game_pause(int sc)
 
 	ps_t.setString("Game Paused");
 	sl_t.setString("Any Key -> Resume\nBackspace -> End Game");
-
-#ifdef _DEBUG
-	cout << "Game Paused" << endl;
-#endif
 
 	while(window.isOpen())
 	{
@@ -275,10 +267,6 @@ void game_over(int sc)
 	sc_t.setString("Score: " + to_string(sc));
 	sl_t.setString("Enter -> New Game\nEscape -> Quit");
 
-#ifdef _DEBUG
-	cout << "Game Over" << endl;
-#endif
-
 	while(window.isOpen())
 	{
 		while(window.pollEvent(ev))
@@ -317,7 +305,9 @@ void game_over(int sc)
 
 void game_reset(void)
 {
+	read_config("../config.ini");
 	score = 0;
+	level = prev_level = 1;
 	snake_dir = DIR_RIGHT;
 	snake_cur_dir = DIR_RIGHT;
 	snake.clear();
@@ -329,12 +319,26 @@ void game_reset(void)
 	head_pos.x = 10;
 	snake.push_front(head_pos);
 	fruit_pos = roll_fruit(snake);
-	score_t.setString("Score: 0");
 	timer.restart();
+	score_timer.restart();	
+	score_t.setString("Score: " + to_string(score) + "\nLevel: " + to_string(level));
+}
 
-#ifdef _DEBUG
-	cout << "Game Restarted" << endl;
-#endif
+void read_config(string fname)
+{
+	ifstream config(fname.c_str());
+	string id, eq, val;
+	if(config.good())
+	{
+		while(config >> id >> eq >> val)
+		{
+			if(id[0] == '#')
+				continue;
+			if(eq != "=")
+				throw runtime_error("Parse error");
+			level_cfg[id] = atof(val.c_str());
+		}
+	}
 }
 
 int random(int min, int max)
@@ -358,38 +362,28 @@ pos roll_fruit(list<pos> l)
 	bool col;
 	pos p;
 
-	do{
+	do {
 		col = false;
 		p.x = random(0, 49);
 		p.y = random(0, 39);
 		for(list<pos>::iterator i = l.begin(); i != l.end(); i++)
-		{
 			if(((*i).x == p.x) && ((*i).y == p.y))
 				col = true;
-		}
-	}while(col);
-
-#ifdef _DEBUG
-	cout << "Fruit rolled at: X: " << p.x << " Y: " << p.y << endl;
-#endif
+	} while(col);
 
 	return p;
 }
 
 bool collision(list<pos> l, pos h)
 {
+	if(h.x < 0 || h.x > 49)
+		return true;
+	if(h.y < 0 || h.y > 39)
+		return true;
+		
 	for(list<pos>::iterator i = l.begin(); i != l.end(); i++)
-	{
 		if(((*i).x == h.x) && ((*i).y == h.y))
-		{
-
-#ifdef _DEBUG
-			cout << "Collision at: X: " << h.x << " Y: " << h.y << endl;
-#endif
-
 			return true;
-		}
-	}
 
 	return false;
 }
